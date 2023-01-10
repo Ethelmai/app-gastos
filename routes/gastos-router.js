@@ -1,19 +1,14 @@
 const express = require("express");
-const filesMethods = require("../files-functions/files-methods");
+const business = require("../business/gastos");
+
 const { v4: uuidv4 } = require("uuid");
 
 const gastosRouter = express.Router();
 
-gastosRouter.get("/:id", async (req, res, next) => {
+gastosRouter.get("/:id", async (req, res) => {
   const id = req.params.id;
-  const gastosList = await filesMethods.readFilePromise("gastos");
-
-  gastosList.forEach((gasto) => {
-    if (id === gasto.id) {
-      res.send(gasto);
-      return;
-    }
-  });
+  const gasto = await business.retrieveGastoById(id);
+  res.send(gasto);
 });
 
 gastosRouter.post("/", async (req, res, next) => {
@@ -23,9 +18,7 @@ gastosRouter.post("/", async (req, res, next) => {
     concepto: req.body.concepto,
     precio: req.body.precio,
   };
-  const gastosList = await filesMethods.readFilePromise("gastos");
-  gastosList.push(gasto);
-  await filesMethods.writeFilePromise("gastos", gastosList);
+  await business.createGasto(gasto);
   res.send(gasto);
 });
 
@@ -38,32 +31,19 @@ gastosRouter.put("/:id", async (req, res, next) => {
     precio: req.body.precio,
     estado: req.body.estado,
   };
-  const gastosList = await filesMethods.readFilePromise("gastos");
-
-  for (let i = 0; i < gastosList.length; i++) {
-    if (gastosList[i].id === editId) {
-      gastosList[i] = gastoEditado;
-    }
-  }
-  await filesMethods.writeFilePromise("gastos", gastosList);
+  await business.updategasto(editId, gastoEditado);
   res.send(gastoEditado);
 });
 
 gastosRouter.delete("/:id", async (req, res, next) => {
   const id = req.params.id;
-  const gastosList = await filesMethods.readFilePromise("gastos");
-  for (let i = 0; i < gastosList.length; i++) {
-    if (id === gastosList[i].id) {
-   gastosList.splice(i, 1);
-    }
-  }
-  await filesMethods.writeFilePromise("gastos", gastosList);
+  await business.deleteGasto(id);
   res.status(204).send();
 });
 
 gastosRouter.get("/", async (req, res, next) => {
-  const gastosList = await filesMethods.readFilePromise("gastos");
-  res.send(gastosList);
+  const gastos = await business.retrieveAllGastos();
+  res.send(gastos);
 });
 
 module.exports = gastosRouter;

@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-function readFilePromise(entity) {
+const retrieve = (entity) => {
     return new Promise((resolve, reject) => {
         fs.readFile(`./data/${entity}.json`, "utf8", (err, data) => {
             if (err) {
@@ -12,7 +12,7 @@ function readFilePromise(entity) {
     });
 }
 
-const writeFilePromise = (entity, data) => {
+const save = (entity, data) => {
   return new Promise((resolve, reject) => {
     fs.writeFile(`./data/${entity}.json`, JSON.stringify(data), (err, data) => {
       if (err) {
@@ -24,4 +24,4 @@ const writeFilePromise = (entity, data) => {
   });
 };
 
-module.exports = { readFilePromise, writeFilePromise };
+module.exports = { retrieve, save };
